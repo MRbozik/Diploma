@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>FloraDetect</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-leaf"></i> FloraDetect</h1>
+    </header>
+
+    <main>
+        <section id="upload-section">
+            <h2>Завантажте фотографію рослини</h2>
+            <div class="upload-box" id="upload-box">
+                <i class="fas fa-upload fa-3x"></i>
+                <p>Натисніть або перетягніть файл</p>
+                <input type="file" id="image-upload" accept="image/*" style="display: none;" />
+            </div>
+            <div class="button-container">
+                <button id="analyze-button">Аналізувати</button>
+            </div>
+        </section>
+
+        <section id="result-section" class="hidden">
+            <h2>Результат аналізу</h2>
+            <div id="plant-info">
+                <p id="predicted-class">Передбачений клас: </p>
+                <p id="disease-probability">Ймовірність хвороби: </p>
+            </div>
+        </section>
+    </main>
+
+    <div id="loading" class="loading hidden">
+        <div class="spinner"></div>
+        <p>Аналіз...</p>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 FloraDetect. Всі права захищені.</p>
+    </footer>
+</body>
+</html>
