@@ -1,11 +1,11 @@
-# Используем официальный образ Python 3.12 в качестве базового
-FROM python:3.12-slim
+FROM python:3.10.12
 
 # Устанавливаем рабочий каталог в контейнере
 WORKDIR /app
 
 # Устанавливаем системные зависимости
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     zlib1g-dev \
     libjpeg-dev \
     libpng-dev \
@@ -13,8 +13,9 @@ RUN apt-get update && apt-get install -y \
     libopenjp2-7-dev \
     libwebp-dev \
     libfreetype6-dev \
-    gcc \
-    && apt-get clean
+    gcc && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Копируем requirements.txt в рабочий каталог
 COPY requirements.txt .
