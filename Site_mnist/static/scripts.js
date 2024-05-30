@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const loadingElement = document.getElementById("loading");
     const resultModal = document.getElementById("result-modal");
     const resultSection = document.getElementById("result-section");
+    const diseaseInfoElement = document.getElementById("disease-info");
 
     console.log("Кнопка аналізу знайдена:", analyzeButton);
     console.log("Вхідний елемент для файлів знайдений:", fileInputElement);
@@ -82,13 +83,14 @@ function handleFileSelect(event) {
     }
 }
 
-function analyzeImage() {
+async function analyzeImage() {
     console.log("Функція analyzeImage викликана");
     const fileInput = fileInputElement;
     const loadingElement = document.getElementById("loading");
     const resultModal = document.getElementById("result-modal");
     const plantInfo = document.getElementById("plant-info");
     const resultSection = document.getElementById("result-section");
+    const diseaseInfoElement = document.getElementById("disease-info");
 
     console.log("Вхідний елемент для файлів під час analyzeImage:", fileInput);
 
@@ -108,19 +110,19 @@ function analyzeImage() {
 
     loadingElement.classList.remove("hidden");
 
-    // Відправка зображення на сервер для аналізу
-    fetch("http://192.168.0.143:5000/analyze", {  // Переконайтеся, що IP-адреса правильна
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
+    try {
+        const response = await fetch("http://192.168.0.143:5000/analyze", {
+            method: "POST",
+            body: formData
+        });
+
         loadingElement.classList.add("hidden");
+
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        return response.json();
-    })
-    .then(data => {
+
+        const data = await response.json();
         console.log("Дані від сервера:", data);
 
         const predictedClassElement = document.getElementById("predicted-class");
@@ -134,7 +136,11 @@ function analyzeImage() {
             const plantType = predictedClass[0]; // Тип рослини
             const disease = predictedClass[1]; // Хвороба
 
-            predictedClassElement.textContent = `Клас: ${plantType}\nХвороба: ${disease} (${data.predicted_class_index})`;
+            // Переклад тексту за допомогою Google Translate API
+            const translatedPlantType = await translateText(plantType);
+            const translatedDisease = await translateText(disease);
+
+            predictedClassElement.textContent = `Клас: ${translatedPlantType}\nХвороба: ${translatedDisease} (${data.predicted_class_index})`;
             diseaseProbabilityElement.textContent = `Ймовірність хвороби: ${(data.disease_probability * 100).toFixed(2)}%`;
             console.log("Оновлено textContent елементів передбаченого класу та ймовірності захворювання.");
         } else {
@@ -142,11 +148,33 @@ function analyzeImage() {
         }
 
         resultSection.classList.remove("hidden");
-    })
-    .catch(error => {
+    } catch (error) {
         loadingElement.classList.add("hidden");
         plantInfo.innerHTML = `<p>Помилка під час аналізу: ${error.message}</p>`;
         console.error("Помилка під час аналізу:", error);
         resultModal.classList.remove("hidden");
+    }
+}
+
+// Функція для перекладу тексту за допомогою Google Cloud Translation API
+async function translateText(text) {
+    const apiKey = 'AIzaSyBNbtBfxzcCxSTmSMcvZoM1s25l427sjkc'; // Вставте свій API ключ тут
+    const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            q: text,
+            target: 'uk'
+        })
     });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.data.translations[0].translatedText;
 }
