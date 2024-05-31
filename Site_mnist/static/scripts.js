@@ -1,3 +1,5 @@
+// static/scripts.js
+
 let fileInputElement = null;
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -158,7 +160,7 @@ async function analyzeImage() {
 
 // Функція для перекладу тексту за допомогою Google Cloud Translation API
 async function translateText(text) {
-    const apiKey = 'AIzaSyBNbtBfxzcCxSTmSMcvZoM1s25l427sjkc'; // Вставте свій API ключ тут
+    const apiKey = config.apiKey; // Используем API-ключ из config.js
     const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKey}`;
     const response = await fetch(url, {
         method: 'POST',

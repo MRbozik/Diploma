@@ -8,15 +8,15 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Разрешить все источники
+CORS(app)  # Дозволити всі джерела
 
-# Загрузка модели
-model_path = "Model_2_16_1.keras"  # Убедитесь, что файл модели находится в этом пути
+# Завантаження моделі
+model_path = "Model_2_16_1.keras"  # Переконайтеся, що файл моделі знаходиться в цьому шляху
 if not os.path.exists(model_path):
-    raise RuntimeError("Model file not found")
+    raise RuntimeError("Файл моделі не знайдено")
 model = tf.keras.models.load_model(model_path)
 
-# Определение классов заболеваний растений (замените на ваши реальные классы)
+# Визначення класів захворювань рослин (замініть на ваші реальні класи)
 class_names = ['Apple___Apple_scab',
                'Apple___Black_rot',
                'Apple___Cedar_apple_rust',
@@ -55,10 +55,10 @@ class_names = ['Apple___Apple_scab',
                'Tomato___Target_Spot',
                'Tomato___Tomato_Yellow_Leaf_Curl_Virus',
                'Tomato___Tomato_mosaic_virus',
-               'Tomato___healthy']  # Замените на реальные классы вашей модели
+               'Tomato___healthy']  # Замініть на реальні класи вашої моделі
 
 
-# Определение корневого маршрута
+# Визначення кореневого маршруту
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
@@ -67,26 +67,26 @@ def index():
 @app.route("/analyze", methods=["POST"])
 def analyze_image():
     try:
-        # Получение изображения из запроса
+        # Отримання зображення з запиту
         image_file = request.files.get("image")
         if not image_file:
-            return jsonify({"error": "Image not provided"}), 400
+            return jsonify({"error": "Зображення не надано"}), 400
 
-        # Чтение и подготовка изображения
+        # Читання та підготовка зображення
         image = Image.open(io.BytesIO(image_file.read())).convert('RGB')
-        image = image.resize((224, 224))  # Изменить размер в соответствии с вашей моделью
-        image_array = np.array(image) / 255.0  # Нормализация
-        image_array = np.expand_dims(image_array, axis=0)  # Добавление измерения
+        image = image.resize((224, 224))  # Змінити розмір відповідно до вашої моделі
+        image_array = np.array(image) / 255.0  # Нормалізація
+        image_array = np.expand_dims(image_array, axis=0)  # Додавання виміру
 
-        # Предсказание с помощью модели
+        # Передбачення за допомогою моделі
         predictions = model.predict(image_array)
         predicted_class_index = np.argmax(predictions)
         predicted_probability = float(predictions[0][predicted_class_index])
 
-        # Ответ с предсказанным классом и вероятностью
+        # Відповідь з передбаченим класом і ймовірністю
         result = {
             "predicted_class_index": int(predicted_class_index),
-            "predicted_class": class_names[predicted_class_index],  # добавляем строковое представление класса
+            "predicted_class": class_names[predicted_class_index],  # додавання строкового представлення класу
             "disease_probability": predicted_probability
         }
         return jsonify(result), 200
